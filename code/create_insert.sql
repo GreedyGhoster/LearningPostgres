@@ -25,7 +25,7 @@ CREATE TABLE employees(
 	email VARCHAR(255) NOT NULL,
 	hire_date DATE NOT NULL,
 	gender gender_type,
-	salary MONEY NOT NULL,
+	salary INTEGER NOT NULL,
 	coffee_shop_id INTEGER REFERENCES shops(coffee_shop_id)
 );
 
