@@ -207,3 +207,190 @@ SELECT
   sum(salary) as total_sal,
   count(*) as num_of_emp
 FROM employees;
+
+-- ------------------------------------------------------------------------------------------------
+
+-- GROUP BY & HAVING
+
+-- Return the number of employees for each coffeeshop
+SELECT
+  coffee_shop_id,
+	COUNT(employee_id)
+FROM employees
+GROUP BY coffee_shop_id;
+
+-- Return the total salaries for each coffeeshop
+SELECT
+  coffee_shop_id,
+	SUM(salary)
+FROM employees
+GROUP BY coffee_shop_id;
+
+-- Return the number of employees, the avg & min & max & total salaries for each coffeeshop
+SELECT
+	coffee_shop_id, 
+	COUNT(*) AS num_of_emp,
+	ROUND(AVG(salary), 0) AS avg_sal,
+	MIN(salary) AS min_sal,
+    MAX(salary) AS max_sal,
+	SUM(salary) AS total_sal
+FROM employees
+GROUP BY coffee_shop_id
+ORDER BY num_of_emp DESC;
+
+-- Return the number of employees, the avg & min & max & total salaries for each coffeeshop
+SELECT
+	coffee_shop_id, 
+	COUNT(*) AS num_of_emp,
+	ROUND(AVG(salary), 0) AS avg_sal,
+	MIN(salary) AS min_sal,
+    MAX(salary) AS max_sal,
+	SUM(salary) AS total_sal
+FROM employees
+GROUP BY coffee_shop_id
+WHERE COUNT(*) > 200
+ORDER BY num_of_emp DESC;
+
+-- After GROUP BY, return only the coffeeshops with a minimum salary of more than 10k
+SELECT
+	coffee_shop_id, 
+	COUNT(*) AS num_of_emp,
+	ROUND(AVG(salary), 0) AS avg_sal,
+	MIN(salary) AS min_sal,
+    MAX(salary) AS max_sal,
+	SUM(salary) AS total_sal
+FROM employees
+GROUP BY coffee_shop_id
+HAVING MIN(SALARY) > 10000
+ORDER BY num_of_emp DESC;
+
+-- ------------------------------------------------------------------------------------------------
+
+-- CASE, CASE with GROUP BY, and CASE for transposing data
+
+-- If pay is less than 50k, then low pay, otherwise high pay
+SELECT
+	employee_id,
+	first_name || ' ' || last_name as full_name,
+	salary,
+	CASE
+		WHEN salary < 50000 THEN 'low pay'
+		WHEN salary >= 50000 THEN 'high pay'
+		ELSE 'no pay'
+	END as pay_category
+FROM employees
+ORDER BY salary DESC;
+
+-- Transpose above
+SELECT
+	SUM(CASE WHEN salary < 20000 THEN 1 ELSE 0 END) AS low_pay,
+	SUM(CASE WHEN salary BETWEEN 20000 AND 50000 THEN 1 ELSE 0 END) AS medium_pay,
+	SUM(CASE WHEN salary > 50000 THEN 1 ELSE 0 END) AS high_pay
+FROM employees;
+
+-- Return the count of employees in each pay category
+SELECT a.pay_category, COUNT(*)
+FROM(
+	SELECT
+    CASE
+			WHEN salary < 20000 THEN 'low pay'
+			WHEN salary BETWEEN 20000 and 50000 THEN 'medium pay'
+			WHEN salary > 50000 THEN 'high pay'
+			ELSE 'no pay'
+		END as pay_category
+	FROM employees
+	ORDER BY salary DESC
+) a
+GROUP BY a.pay_category;
+
+-- ------------------------------------------------------------------------------------------------
+
+-- UNION (to stack data on top each other)
+
+-- Return all cities and countries
+SELECT city FROM locations
+UNION
+SELECT country FROM locations;
+
+-- UNION removes duplicates
+SELECT country FROM locations
+UNION
+SELECT country FROM locations;
+
+-- UNION ALL keeps duplicates
+SELECT country FROM locations
+UNION ALL
+SELECT country FROM locations;
+
+-- Return all coffeeshop names, cities and countries
+SELECT coffeeshop_name FROM shops
+UNION
+SELECT city FROM locations
+UNION
+SELECT country FROM locations;
+
+-- ------------------------------------------------------------------------------------------------
+
+-- JOIN
+
+-- Inserting values just for JOIN exercises
+INSERT INTO locations VALUES (4, 'Paris', 'France');
+INSERT INTO shops VALUES (6, 'Happy Brew', NULL);
+
+-- Checking the values we inserted
+SELECT * FROM shops;
+SELECT * FROM locations;
+
+-- "INNER JOIN" same as just "J0iN"
+SELECT 
+	s.coffee_shop_name,
+	l.city,
+	l.country
+FROM (
+	shops s
+	inner JOIN locations as l
+	ON s.city_id = l.city_id
+);
+
+SELECT
+  s.coffeeshop_name,
+  l.city,
+  l.country
+FROM
+  shops s
+  JOIN locations l
+  ON s.city_id = l.city_id;
+
+-- LEFT JOIN
+SELECT
+  s.coffeeshop_name,
+  l.city,
+  l.country
+FROM
+	shops s
+	LEFT JOIN locations l
+	ON s.city_id = l.city_id;
+
+-- RIGHT JOIN
+SELECT
+  s.coffee_shop_name,
+  l.city,
+  l.country
+FROM
+	shops s
+	RIGHT JOIN locations l
+	ON s.city_id = l.city_id;
+
+-- FULL OUTER JOIN
+SELECT
+  s.coffee_shop_name,
+  l.city,
+  l.country
+FROM
+	shops s
+	FULL OUTER JOIN locations l
+	ON s.city_id = l.city_id;
+
+-- Delete the values we created just for the JOIN exercises
+DELETE FROM locations WHERE city_id = 4;
+DELETE FROM shops WHERE coffee_shop_id = 6;

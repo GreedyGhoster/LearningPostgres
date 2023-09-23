@@ -22,7 +22,7 @@ CREATE TABLE employees(
   employee_id INTEGER PRIMARY KEY,
 	first_name VARCHAR(30) NOT NULL,
 	last_name VARCHAR(30) NOT NULL,
-	email VARCHAR(255) NOT NULL,
+	email VARCHAR(255),
 	hire_date DATE NOT NULL,
 	gender gender_type,
 	salary INTEGER NOT NULL,
